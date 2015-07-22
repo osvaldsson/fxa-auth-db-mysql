@@ -1,11 +1,26 @@
-FROM ubuntu:trusty
+##########################################################
+#                  /!\ WARNING /!\                       #
+# This is completely experimental. Use at your own risk. #
+#             Also, learn you some docker:               #
+#           http://docker.io/gettingstarted              #
+##########################################################
 
-RUN DEBIAN_FRONTEND=noninteractive apt-get -y update && DEBIAN_FRONTEND=noninteractive apt-get -y install nodejs npm git
-RUN ln -sf /usr/bin/nodejs /usr/local/bin/node
+FROM node:0.10-onbuild
+MAINTAINER Olafur Osvaldsson <osvaldsson@icelandic.net>
 
-RUN useradd --home-dir /opt/fxa fxa
+# Base system setup
+
+RUN useradd --create-home fxa
+
 USER fxa
 
-WORKDIR /opt/fxa
+RUN mkdir -p /home/fxa/auth-db-mysql
 
-CMD npm start
+ADD . /home/fxa/auth-db-mysql/
+
+WORKDIR /home/fxa/auth-db-mysql
+
+# Run the Auth DB Server
+
+ENTRYPOINT ["npm"]
+CMD ["start"]
